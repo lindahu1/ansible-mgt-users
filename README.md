@@ -1,12 +1,8 @@
 mgt-users
 =========
 
-[![License](https://img.shields.io/badge/license-BSD-blue.svg?style=flat)]
-
-[![Platform](http://img.shields.io/badge/platform-centos-932279.svg?style=flat)](#)
-[![Platform](http://img.shields.io/badge/platform-redhat-cc0000.svg?style=flat)](#)
-[![Platform](http://img.shields.io/badge/platform-ubuntu-dd4814.svg?style=flat)](#)
-
+![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)
+![Platform](http://img.shields.io/badge/platform-centos-932279.svg?style=flat) ![Platform](http://img.shields.io/badge/platform-redhat-cc0000.svg?style=flat) ![Platform](http://img.shields.io/badge/platform-ubuntu-dd4814.svg?style=flat)
 
 - manage user account and group
 - manage ssh authorized_keys
@@ -16,7 +12,7 @@ mgt-users
 
 ## Requirements
 
-- [ansible][ansible] >= 2.2
+- [ansible](https://ansible.com) >= 2.2
 
 
 ## Role Variables
@@ -33,19 +29,46 @@ None
 
 
 ## Example Playbook
+```yaml
+---
+ - hosts: localhost
+   roles:
+     - { role: lindahu.mgt-users }
+```
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+## Example user_list 
+configure user_list in group_vars/all
+```yaml
+---
+user_list:
+  test:
+    userid: 'test'
+    uid: '1001'
+    gid: '1001'
+    homefolder: /home/test
+    shell: /bin/bash
+    permit: ALL=(ALL)       ALL
+    ensure: present
+    sshkey: AAAABxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=
+    sshkeytype: ssh-rsa
+    sshkey_ensure: present
+    sshkey_exclusive: True
+  devops:
+    userid: devops
+    password: $6$nCkb0HCW$1HLCb8rbT9WOdrFAOK3vbbnGOUK4T7.49qJUHxcTMOmALicKQBOWt7c3EqLQZMNQ9deIBmUJsxcbtbv3hAMRp0
+    ensure: present
+    permit: ALL=(root)       NOPASSWD:/bin/ping, /bin/ls, /bin/more, /bin/gzip, /bin/tar, /usr/bin/zip, /usr/bin/unzip, /usr/bin/less, /usr/bin/tail, /usr/bin/head, /bin/zcat
+    enable_user: true
+  testuser:
+    ensure: absent
+```
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
 
+## Tags
 
-## License
+- **debug**: print out user list.
+- **user**: manage all of tasks.
+- **authorized_keys**: setup ssh authorized_keys tasks.
+- **sudo**: setup sudo tasks.
+- **enable_user**: setup enable_user service tasks.
 
-BSD
-
-
-## Author Information
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).

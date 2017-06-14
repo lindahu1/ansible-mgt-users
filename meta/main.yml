@@ -8,7 +8,7 @@ galaxy_info:
   # next line and provide a value
   # issue_tracker_url: http://example.com/issue/tracker
 
-  license: BSD
+  license: MIT
 
   min_ansible_version: 2.2
 
@@ -38,12 +38,12 @@ galaxy_info:
     - all
 
   galaxy_tags:
-    - useradd
-    - userdel
-    - sudo
     - system
+    - sudo
+    - user
+    - group
+    - authorized_key
     - deployment
-    - users
 
 dependencies: []
 ...
