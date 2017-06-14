@@ -9,25 +9,21 @@ galaxy_info:
   # platforms is a list of platforms, and each platform has a name and a list of versions.
   #
   platforms:
-  - name: CentOS
-    versions:
-    - 6
-  - name: RedHat
-    versions:
-    - 6
   - name: Ubuntu
     versions:
     - xenial
   - name: EL
     versions:
     - 6
+    - 7
 
   galaxy_tags:
     - system
     - sudo
     - user
     - group
-    - authorized_key
+    - ssh
+    - key
     - deployment
 
 dependencies: []
