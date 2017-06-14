@@ -1,0 +1,25 @@
+---
+user_list:
+  test1:
+    uid: "1523"
+    gid: "1523"
+    homefolder: /home/test1
+    shell: /sbin/nologin
+    permit: ALL=(ALL)       ALL
+    password: $6$sT17slTs$pgjOlA6AbfOrSI96l5uTkndM0tD8X2XacqLNYKNPkvuTmkHZaqdcteUo2b6VSfU616f3wjeBut5jM6VaDYnvC1
+    ensure: present
+    enable_user: true
+  test2:
+    userid: test2
+    shell: /bin/bash
+    ensure: present
+    permit: ALL=(root)       NOPASSWD:/bin/ping, /bin/ls, /bin/more, /bin/gzip, /bin/tar, /usr/bin/zip, /usr/bin/unzip, /usr/bin/less, /usr/bin/tail, /usr/bin/head, /bin/zcat
+    sshkey: AAAAB3NzaC1yc2EAAAADAQABAAABAQDYVWqWp3YNQJMqSxbEB0lfVsqCeBlkeUxTECHCjj43SY+7YgbxuzXUlWS3hsDnQJuhKKdNWinM3iRDLaF+9WvWSuzc/6CuPIfDFyTAxwHvX4vjG+LimFAhKRUejy58v8rTqFGMOobsJHneNwT/fyzC15SNIchwLiysk0pOJlMtLmY+9Ll3F82fc/bxunx1cFz56rX2n5spWaXcLRxOl+ieV9AII/vIAEuvuBTNgm6OBNgizjMuzfB1x+VQzAvK/ERZu7kwx2Kw3VCl+YyDrtfffzY10OqDhiciYy48NnQiN4rmlPJnzBe9TafhEeuAikoJ2DadbFZfXu/+C43lovBJ vagrant@node2
+    sshkeytype: ssh-rsa
+    sshkey_ensure: present
+    sshkey_exclusive: True
+  test3:
+    userid: test3
+    shell: /sbin/nologin
+    permit: ALL=(ALL)       ALL
+    ensure: absent

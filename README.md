@@ -72,3 +72,25 @@ user_list:
 - **sudo**: setup sudo tasks.
 - **enable_user**: setup enable_user service tasks.
 
+## Notes
+- Unabel to support EL5 because it will got error while executing `visudo -cf %s`
+  If you want to perform this role to EL5, you must comment out `#validate: 'visudo -cf %s'` as below.
+```yaml
+  - name: manage sudo permsision
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+      sudo_permission: "{{ item.value.permit }}"
+    template:
+      src: sudo.j2
+      dest: "/etc/sudoers.d/{{ userid }}"
+      owner: root
+      group: root
+      mode: 0440
+      #validate: 'visudo -cf %s'
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.permit is defined
+    with_dict: "{{ user_list }}"
+    tags: [user, sudo]
+```
+

@@ -1,5 +1,6 @@
 ---
 - hosts: localhost
   remote_user: root
+
   roles:
     - lindahu1.user_accounts
