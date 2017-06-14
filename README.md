@@ -1,4 +1,4 @@
-mgt-users
+user_accounts
 =========
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)
@@ -33,7 +33,7 @@ None
 ---
  - hosts: localhost
    roles:
-     - { role: lindahu.mgt-users }
+     - { role: lindahu1.user_accounts }
 ```
 
 ## Example user_list 
