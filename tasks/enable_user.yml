@@ -1,0 +1,31 @@
+---
+# Install enable_user service for special purpose 
+
+  - name: install enable_user service
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+      nologin: "{{ sbin_nologin | default('/sbin/nologin') }}"
+    template:
+      src: enable_user.j2
+      dest: "/etc/init.d/enable_{{ userid }}"
+      owner: root
+      group: root
+      mode: 0755
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.enable_user is defined and item.value.enable_user == true
+    with_dict: "{{ user_list }}"
+    tags: [user, enable_user]
+
+  - name: remove enable_user service
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+    file:
+      dest: "/etc/init.d/enable_{{ userid }}"
+      state: absent
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent' or item.value.enable_user is undefined or item.value.enable_user == false)
+    with_dict: "{{ user_list }}"
+    tags: [user, enable_user]
+...

@@ -1,0 +1,148 @@
+---
+  #- include: debug.yml
+  #  when: debug | default(False)
+  #  tags: debug
+
+  #
+  # Manage user account and group
+  #
+  - name: create groups
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+    group:
+      gid: "{{ item.value.gid | default(omit) }}"
+      name: "{{ userid }}"
+      state: "{{ item.value.ensure | default('present') }}"
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present'
+    with_dict: "{{ user_list }}"
+    tags: user
+
+  - name: create users
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+      nologin: "{{ sbin_nologin | default('/sbin/nologin') }}"
+    user:
+      name: "{{ userid }}"
+      comment: "{{ item.value.comment | default(omit) }}"
+      expires: "{{ item.value.expires | default(omit) }}"
+      group: "{{ userid }}"
+      home: "{{ item.value.homefolder | default(omit) }}"
+      non_unique: "{{ item.value.non_unique | default(omit) }}"
+      password: "{{ item.value.password | default(omit) }}"
+      shell: "{{ item.value.shell | default(nologin) }}"
+      state: "{{ item.value.ensure | default('present') }}"
+      uid: "{{ item.value.uid | default(omit) }}"
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present'
+    with_dict: "{{ user_list }}"
+    tags: user
+
+  - name: delete users/groups
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+    user:
+      name: "{{ userid }}"
+      home: "{{ item.value.homefolder | default(omit) }}"
+      move_home: "{{ item.value.move_home | default('yes') }}"
+      state: "{{ item.value.ensure | default('absent') }}"
+      uid: "{{ item.value.uid | default(omit) }}"
+      remove: "yes"
+      force: "yes"
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent')
+    with_dict: "{{ user_list }}"
+    tags: user
+
+  #- name: delete groups
+  #  vars:
+  #    userid: "{{ item.value.userid | default(item.key) }}"
+  #  group:
+  #    name: "{{ userid }}"
+  #    state: absent
+  #  become: yes
+  #  no_log: "{{ nolog }}"
+  #  when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent')
+  #  with_dict: "{{ user_list }}"
+  #  tags: user
+
+
+  #
+  # Manage ssh authorized_keys
+  #
+  - name: manage ssh authorized_keys
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+    authorized_key:
+      user: "{{ userid }}"
+      key: "{{ item.value.sshkeytype }} {{ item.value.sshkey }}"
+      state: "{{ item.value.sshkey_ensure | default('absent') }}"
+      exclusive: "{{ item.value.sshkey_exclusive | default(true) }}"
+      unique: true
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.sshkey is defined and item.value.sshkeytype is defined
+    with_dict: "{{ user_list }}"
+    tags: [user, authorized_keys]
+
+  - name: remove authorized_keys file
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+    file:
+      dest: "/home/{{ userid }}/.ssh/authorized_keys"
+      state: absent
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and item.value.sshkey_ensure is defined and item.value.sshkey_exclusive is defined and item.value.sshkey_ensure == 'absent' and item.value.sshkey_exclusive == true
+    with_dict: "{{ user_list }}"
+    tags: [user, authorized_keys]
+
+
+  - name: create /etc/sudoers.d/
+    file:
+      path: /etc/sudoers.d/
+      state: directory
+      owner: root
+      group: root
+      mode: 0750
+    tags: [user, sudo]
+
+
+  #
+  # Manage sudo
+  #
+  - name: manage sudo permsision
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+      sudo_permission: "{{ item.value.permit }}"
+    template:
+      src: sudo.j2
+      dest: "/etc/sudoers.d/{{ userid }}"
+      owner: root
+      group: root
+      mode: 0440
+      validate: 'visudo -cf %s'
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.permit is defined
+    with_dict: "{{ user_list }}"
+    tags: [user, sudo]
+
+  - name: remove sudo permsision
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+    file:
+      dest: "/etc/sudoers.d/{{ userid }}"
+      state: absent
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent' or item.value.permit is undefined)
+    with_dict: "{{ user_list }}"
+    tags: [user, sudo]
+
+  - include: enable_user.yml
+    tags: [user, enable_user]
+...

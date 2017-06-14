@@ -1,0 +1,5 @@
+---
+debug: False
+nolog: True
+user_list: {}
+sbin_nologin: '/sbin/nologin'
