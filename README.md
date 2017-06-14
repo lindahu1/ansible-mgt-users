@@ -2,6 +2,8 @@ user_accounts
 =========
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)
+[![Build Status](https://travis-ci.org/lindahu1/system.svg?branch=master)](https://travis-ci.org/lindahu1/ansible-mgt-users#)
+
 ![Platform](http://img.shields.io/badge/platform-centos-932279.svg?style=flat) ![Platform](http://img.shields.io/badge/platform-redhat-cc0000.svg?style=flat) ![Platform](http://img.shields.io/badge/platform-ubuntu-dd4814.svg?style=flat)
 
 - manage user account and group
