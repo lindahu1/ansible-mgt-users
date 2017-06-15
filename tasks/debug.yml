@@ -1,9 +1,10 @@
 ---
   - name: debug - user account list
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+      nologin: "{{ sbin_nologin | default('/sbin/nologin') }}"
     debug:
-      #msg: "{{ item.value.userid | default({{item.name}}) }} {{item.value.uid|default(omit)}}:{{item.value.gid|default(omit)}} {{item.value.homefolder|default(omit)}} {{item.value.shell|default('/bin/bash')}} {{ item.value.ensure|default('present') }}"
-      #msg: "{{ item.value.userid | default({{item.name}}) }}"
-      msg: "{{ item.value.userid | default(item.key) }}"
+      msg: "{{ userid }} {{item.value.uid|default(omit)}} {{item.value.gid|default(omit)}} {{item.value.homefolder|default(omit)}} {{item.value.shell|default(nologin)}} {{ item.value.ensure|default('present') }}"
     when: item.key is defined
     with_dict: "{{ user_list }}"
     no_log: "{{ False if debug }}"

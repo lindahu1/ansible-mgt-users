@@ -1,8 +1,4 @@
 ---
-  #- include: debug.yml
-  #  when: debug | default(False)
-  #  tags: debug
-
   #
   # Manage user account and group
   #
@@ -124,7 +120,7 @@
       owner: root
       group: root
       mode: 0440
-      validate: 'visudo -cf %s'
+      validate: '/usr/sbin/visudo -cf %s'
     become: yes
     no_log: "{{ nolog }}"
     when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.permit is defined
@@ -145,4 +141,8 @@
 
   - include: enable_user.yml
     tags: [user, enable_user]
+
+  #- include: debug.yml
+  #  when: debug | default(False)
+  #  tags: debug
 ...

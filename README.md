@@ -1,8 +1,7 @@
 user_accounts
 =========
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)
-[![Build Status](https://travis-ci.org/lindahu1/ansible-mgt-users.svg?branch=master)](https://travis-ci.org/lindahu1/ansible-mgt-users#)
+![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)&nbsp;&nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.org/lindahu1/ansible-mgt-users.svg?branch=master)](https://travis-ci.org/lindahu1/ansible-mgt-users#)
 
 ![Platform](http://img.shields.io/badge/platform-centos-932279.svg?style=flat) ![Platform](http://img.shields.io/badge/platform-redhat-cc0000.svg?style=flat) ![Platform](http://img.shields.io/badge/platform-ubuntu-dd4814.svg?style=flat)
 
@@ -10,6 +9,10 @@ user_accounts
 - manage ssh authorized_keys
 - manage sudo permission
 - manage enable_user (for special purpose)
+  &nbsp;&nbsp;This function is for lazy administrators:
+  &nbsp;&nbsp;`/etc/init.d/enable_{{userid}}` `[start/stop/status]`
+   - Change shell: from /sbin/nologin to /bin/bash
+   - Set crontab: to change back shell everyday
 
 
 ## Requirements
@@ -23,6 +26,8 @@ user_accounts
 - **nolog**: flag for no_log. (True or False, default: True - won't print stdout)
 - **user_list**: list of users' setting.
 - **sbin_nologin**: nologin shell path. (default: /sbin/nologin)
+- **stop_cron_hour**: the hour to stop enable_user daily. (default: 23)
+- **stop_cron_min**: the minute to stop enable_user daily. (default: 57)
 
 
 ## Dependencies
@@ -39,7 +44,7 @@ None
      - { role: lindahu1.user_accounts }
 ```
 
-## Example user_list 
+## Example user_list
 configure user_list in group_vars/all
 ```yaml
 ---
@@ -74,26 +79,4 @@ user_list:
 - **authorized_keys**: setup ssh authorized_keys tasks.
 - **sudo**: setup sudo tasks.
 - **enable_user**: setup enable_user service tasks.
-
-## Notes
-- Unabel to support EL5 because it will got error while executing `visudo -cf %s`
-  If you want to perform this role to EL5, you must comment out `#validate: 'visudo -cf %s'` as below.
-```yaml
-  - name: manage sudo permsision
-    vars:
-      userid: "{{ item.value.userid | default(item.key) }}"
-      sudo_permission: "{{ item.value.permit }}"
-    template:
-      src: sudo.j2
-      dest: "/etc/sudoers.d/{{ userid }}"
-      owner: root
-      group: root
-      mode: 0440
-      #validate: 'visudo -cf %s'
-    become: yes
-    no_log: "{{ nolog }}"
-    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.permit is defined
-    with_dict: "{{ user_list }}"
-    tags: [user, sudo]
-```
 

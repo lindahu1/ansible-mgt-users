@@ -15,7 +15,21 @@
     no_log: "{{ nolog }}"
     when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.enable_user is defined and item.value.enable_user == true
     with_dict: "{{ user_list }}"
-    tags: [user, enable_user]
+
+  - name: set enable_user cron
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+    cron:
+      name: "stop enable_{{ userid }} daily"
+      state: present
+      user: 'root'
+      minute: "{{ stop_cron_min }}"
+      hour: "{{ stop_cron_hour }}"
+      job: "/etc/init.d/enable_{{ userid }} stop > /dev/null 2>&1"
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.enable_user is defined and item.value.enable_user == true
+    with_dict: "{{ user_list }}"
 
   - name: remove enable_user service
     vars:
@@ -27,5 +41,19 @@
     no_log: "{{ nolog }}"
     when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent' or item.value.enable_user is undefined or item.value.enable_user == false)
     with_dict: "{{ user_list }}"
-    tags: [user, enable_user]
+
+  - name: remove enable_user cron
+    vars:
+      userid: "{{ item.value.userid | default(item.key) }}"
+    cron:
+      name: "stop enable_{{ userid }} daily"
+      state: absent
+      user: 'root'
+      minute: "{{ stop_cron_min }}"
+      hour: "{{ stop_cron_hour }}"
+      job: "/etc/init.d/enable_{{ userid }} stop > /dev/null 2>&1"
+    become: yes
+    no_log: "{{ nolog }}"
+    when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent' or item.value.enable_user is undefined or item.value.enable_user == false)
+    with_dict: "{{ user_list }}"
 ...
