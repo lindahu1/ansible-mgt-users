@@ -1,5 +1,5 @@
 ---
-# Install enable_user service for special purpose 
+# Install enable_user service for special purpose
 
   - name: install enable_user service
     vars:
