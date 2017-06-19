@@ -21,10 +21,10 @@ galaxy_info:
     - 7
   - name: Amazon
     versions:
-    - "2017.03"
+    - 2016.09
   - name: opensuse
     versions:
-    - "42.1"
+    - 13.2
 
   galaxy_tags:
     - system
