@@ -1,4 +1,4 @@
-user_accounts
+users
 =========
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)&nbsp;&nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.org/lindahu1/ansible-mgt-users.svg?branch=master)](https://travis-ci.org/lindahu1/ansible-mgt-users#)
@@ -41,7 +41,7 @@ None
  - hosts: localhost
    become: yes
    roles:
-     - { role: lindahu1.user_accounts }
+     - { role: lindahu1.users }
 ```
 
 ## Example user_list
