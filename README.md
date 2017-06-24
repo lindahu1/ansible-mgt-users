@@ -80,3 +80,12 @@ user_list:
 - **sudo**: setup sudo tasks.
 - **enable_user**: setup enable_user service tasks.
 
+
+Reminders
+---------
+- The system must install **libselinux-python**(for EL) or **python-selinux**(for Debian/OpenSuse) if SELinux is enabled.
+  or you will get the below error message:
+  ```
+  Aborting, target uses selinux but python bindings (libselinux-python) aren't installed!
+  ```  
+  You can use [lindahu1.common](https://galaxy.ansible.com/lindahu1/common/) role to help you install packages.
