@@ -19,6 +19,17 @@ user_list:
     sshkey_ensure: present
     sshkey_exclusive: True
   test3:
+    shell: /sbin/nologin
+    ensure: present
+    uid: '1007'
+    gid: '1007'
+    expires: 0
+    permit: ALL=(root)      /bin/ping, /bin/ls, /bin/more, /bin/gzip, /bin/tar, /usr/bin/zip, /usr/bin/unzip, /usr/bin/less, /usr/bin/tail, /usr/bin/head, /bin/zcat, /bin/netstat, /bin/ps, /usr/bin/cat
+    password: $6$3GgjrdoN$Shqd1kedywqBLujYScezQFA0usMC6.LPc9p10u0K7vBpXfWW83jnyWYEM1AqQgwFwKPWoR4hyAsKXqwEnXYLf.
+    sshkey_ensure: absent
+    sshkey_exclusive: True
+    enable_user: true
+  test4:
     userid: "test3"
     shell: /sbin/nologin
     permit: ALL=(ALL)       ALL
