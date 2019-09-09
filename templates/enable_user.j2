@@ -5,6 +5,9 @@
 # Writed by Linda Hu <linda.hu@dlinkcorp.com>
 #
 # 2016/09/13 Initial Version
+# 2018/07/28 Change: log PERMISSION by logger
+# 2019/08/22 Feature: Add 'chage' to lock or unlock account when account is NOLOGING or not.
+# 	     Feature: Add 'force logout' mechanism when 'stop'.
 #
 
 # Source function library
@@ -49,31 +52,49 @@ echo_failure() {
 }
 fi
 
-USER={{ userid }}
-NOLOGINSHELL={{ nologin }}
+USERTARGET={{ userid }}
+#NOLOGINSHELL=`which nologin`
+NOLOGINSHELL='/bin/false'
+CHAGE='/usr/bin/chage'
+PGREP="/usr/bin/pgrep"
+WC="/usr/bin/wc"
+PKILL="/usr/bin/pkill"
+
+if [ -s '/sbin/nologin' ]; then
+  NOLOGINSHELL='/sbin/nologin'
+elif [ -s '/usr/sbin/nologin' ]; then
+  NOLOGINSHELL='/usr/sbin/nologin'
+fi
+
 HOSTNAME=`/bin/hostname -s`
-COUNT=`grep -c $USER /etc/sudoers`
-COUNTROOT=`grep $USER /etc/sudoers | grep root | grep -c ALL`
-SUDOFILE="/etc/sudoers.d/$USER"
+COUNT=`grep -c $USERTARGET /etc/sudoers`
+COUNTROOT=`grep $USERTARGET /etc/sudoers | grep root | grep -c ALL`
+SUDOFILE="/etc/sudoers.d/$USERTARGET"
 if [ ! -e $SUDOFILE ]
 then
   PRECOUNT=0
 else
-  PRECOUNT=`grep -c $USER /etc/sudoers.d/$USER`
+  PRECOUNT=`grep -c $USERTARGET /etc/sudoers.d/$USERTARGET`
 fi
-STATUS=`grep $USER /etc/passwd|grep -c bash`
+STATUS=`grep $USERTARGET /etc/passwd|grep -c bash`
 RETVAL=0
 # See how we were called.
 case "$1" in
   start)
         # Start daemons.
-        echo -n "Enabling $USER account: "
+        echo -n "Enabling $USERTARGET account: "
 	if [ $COUNT -eq 0 ] && [ $PRECOUNT -eq 0 ]
 	then
-  	  echo -e "$USER\t\tALL=(root)\tREADONLY" >> /etc/sudoers
+  	  echo -e "$USERTARGET\t\tALL=(root)\tREADONLY" >> /etc/sudoers
 	fi
-	sed -i "/$USER/{s|${NOLOGINSHELL}|/bin/bash|}" /etc/passwd
-	echo `/bin/date +"%FT%T%z"` `/bin/hostname -s` PERMISSION: $SUDO_USER: Enable permission - READONLY for $USER >> /var/log/secure
+	# UNLOCK account
+	${CHAGE} -E -1 ${USERTARGET}
+	sed -i "/$USERTARGET/{s|/usr/sbin/nologin|/bin/bash|}" /etc/passwd
+	sed -i "/$USERTARGET/{s|/sbin/nologin|/bin/bash|}" /etc/passwd
+	sed -i "/$USERTARGET/{s|/bin/false|/bin/bash|}" /etc/passwd
+	sed -i "/$USERTARGET/{s|${NOLOGINSHELL}|/bin/bash|}" /etc/passwd
+	sed -i "/$USERTARGET/{s|${USERTARGET}:$|${USERTARGET}:/bin/bash|}" /etc/passwd
+	/usr/bin/logger -t "PERMISSION ${SUDO_USER}:$(whoami)" -i -p authpriv.info "Enable permission - READONLY for $USERTARGET"
 	if [ $? -eq 0 ]
 	then
 	   	success
@@ -86,18 +107,24 @@ case "$1" in
 
   startroot)
     # Start daemons for not MP site
-    if [[ $HOSTNAME =~ '^mp-' ]]; then
-        echo -n "Enabling $USER account for root (NOT allow in MP site): "
+    if [[ "$ENVIRONMENT" == "production" ]]; then
+        echo -n "Enabling $USERTARGET account for root (NOT allow in MP site): "
         failure
         RETVAL=1
     else
-        echo -n "Enabling $USER account for root privileges: "
+        echo -n "Enabling $USERTARGET account for root privileges: "
 	if [ $COUNTROOT -eq 0 ]
 	then
-  	        echo -e "$USER\t\tALL=(root)\tALL" >> /etc/sudoers
-         	echo `/bin/date +"%FT%T%z"` `/bin/hostname -s` PERMISSION: $SUDO_USER: Enable permission - ROOT for $USER >> /var/log/secure
+  	        echo -e "$USERTARGET\t\tALL=(root)\tALL" >> /etc/sudoers
+		/usr/bin/logger -t "PERMISSION ${SUDO_USER}:$(whoami)" -i -p authpriv.info "Enable permission - ROOT for $USERTARGET"
         fi
-	sed -i "/$USER/{s|${NOLOGINSHELL}|/bin/bash|}" /etc/passwd
+	# UNLOCK account
+	${CHAGE} -E -1 ${USERTARGET}
+	sed -i "/$USERTARGET/{s|/usr/sbin/nologin|/bin/bash|}" /etc/passwd
+	sed -i "/$USERTARGET/{s|/sbin/nologin|/bin/bash|}" /etc/passwd
+	sed -i "/$USERTARGET/{s|/bin/false|/bin/bash|}" /etc/passwd
+	sed -i "/$USERTARGET/{s|${NOLOGINSHELL}|/bin/bash|}" /etc/passwd
+	sed -i "/$USERTARGET/{s|${USERTARGET}:$|${USERTARGET}:/bin/bash|}" /etc/passwd
 	if [ $? -eq 0 ]
 	then
 	       success
@@ -110,16 +137,32 @@ case "$1" in
     ;;
 
   stop)
-    NOLOGINCOUNT=`grep "^${USER}:" /etc/passwd | grep -c 'nologin'`
-    # Stop daemons.
-    echo -n "Disabling $USER account: "
-	sed -i "/^$USER/d" /etc/sudoers
-	sed -i "/$USER/{s|/bin/bash|${NOLOGINSHELL}|}" /etc/passwd
+	NOLOGINCOUNT=`grep "^${USERTARGET}:" /etc/passwd | grep -c 'nologin'`
+	# Stop daemons.
+	echo -n "Disabling $USERTARGET account: "
+	# FORCE LOGOUT if user has logged in
+	USER_SESSIONS=$($PGREP --euid $USERTARGET | $WC -l)
+	if [[ "${USER_SESSIONS}" > 0 ]]; then
+	    ### Kill specificed user processes ###
+	    echo -en "Force logout ${USERTARGET}: "
+	    /usr/bin/logger -t "PERMISSION ${SUDO_USER}:$(whoami)" -i -p authpriv.info "Force logout $USERTARGET for ${USER_SESSIONS} sessions"
+	    $PKILL -KILL --euid $USERTARGET
+	    if [[ $? -eq 0 ]]; then
+		success
+	    else
+		failure
+	    fi
+	fi
+	# LOCK account
+	${CHAGE} -E 0 ${USERTARGET}
+	sed -i "/^$USERTARGET/d" /etc/sudoers
+	sed -i "/$USERTARGET/{s|/bin/bash|${NOLOGINSHELL}|}" /etc/passwd
+	sed -i "/$USERTARGET/{s|${USERTARGET}:$|${USERTARGET}:${NOLOGINSHELL}|}" /etc/passwd
 	if [ $? -eq 0 ]
 	then
         if [ $NOLOGINCOUNT  -eq 0 ]
         then
-            echo `/bin/date +"%FT%T%z"` `/bin/hostname -s` PERMISSION: $SUDO_USER: Disable permission for $USER >> /var/log/secure
+	    /usr/bin/logger -t "PERMISSION ${SUDO_USER}:$(whoami)" -i -p authpriv.info "Disable permission for $USERTARGET"
         fi
 	   	success
 	else
@@ -131,21 +174,21 @@ case "$1" in
   status)
 	if [ $STATUS -eq 1 ] && [ $COUNTROOT -eq 1 ]
 	then
-          echo -n "$USER is enabled with root  "
+          echo -n "$USERTARGET is enabled with root  "
 	elif [ $STATUS -eq 1 ]
 	then
-          echo -n "$USER is enabled  "
+          echo -n "$USERTARGET is enabled  "
 	elif [ $STATUS -gt 1 ]
 	then
-          echo -n "$USER is enabled [$STATUS] "
+          echo -n "$USERTARGET is enabled [$STATUS] "
 	else
-          echo -n "$USER is disabled "
+          echo -n "$USERTARGET is disabled "
           RETVAL=3
 	fi
 	echo
 	;;
   *)
-        echo "Usage: enableTWRD {start|stop|status}"
+        echo "Usage: enable_${USERTARGET} {start|stop|status}"
         RETVAL=2
 esac
 

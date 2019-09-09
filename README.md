@@ -25,7 +25,6 @@ users
 - **debug**: flag to run debug tasks. (True or False, default: false)
 - **nolog**: flag for no_log. (True or False, default: True - won't print stdout)
 - **user_list**: list of users' setting.
-- **sbin_nologin**: nologin shell path. (default: /sbin/nologin)
 - **stop_cron_hour**: the hour to stop enable_user daily. (default: 23)
 - **stop_cron_min**: the minute to stop enable_user daily. (default: 57)
 
