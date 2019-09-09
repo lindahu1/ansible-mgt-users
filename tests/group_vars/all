@@ -10,7 +10,7 @@ user_list:
     ensure: present
     enable_user: true
   test2:
-    userid: test2
+    userid: "test2"
     shell: /bin/bash
     ensure: present
     permit: ALL=(root)       NOPASSWD:/bin/ping, /bin/ls, /bin/more, /bin/gzip, /bin/tar, /usr/bin/zip, /usr/bin/unzip, /usr/bin/less, /usr/bin/tail, /usr/bin/head, /bin/zcat
@@ -19,7 +19,7 @@ user_list:
     sshkey_ensure: present
     sshkey_exclusive: True
   test3:
-    userid: test3
+    userid: "test3"
     shell: /sbin/nologin
     permit: ALL=(ALL)       ALL
     ensure: absent
