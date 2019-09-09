@@ -23,3 +23,6 @@ user_list:
     shell: /sbin/nologin
     permit: ALL=(ALL)       ALL
     ensure: absent
+  test0:
+    ensure: absent
+    gid: 1009

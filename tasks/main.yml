@@ -2,6 +2,19 @@
   #
   # Manage user account and group
   #
+  - name: delete groups
+    vars:
+      gid: "{{ item.value.gid }}"
+    group:
+      name: "{{ item.key }}"
+      gid: "{{ gid }}"
+      state: absent
+    become: yes
+    no_log: "{{ nolog }}"
+    when: (item.value.gid is defined and item.value.uid is undefined) and (item.value.ensure is undefined or item.value.ensure == 'absent')
+    with_dict: "{{ user_list }}"
+    tags: user
+
   - name: delete users/groups
     vars:
       userid: "{{ item.value.userid | default(item.key) }}"
@@ -52,19 +65,6 @@
     when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present'
     with_dict: "{{ user_list }}"
     tags: user
-
-  #- name: delete groups
-  #  vars:
-  #    gid: "{{ item.value.gid | default(item.key) }}"
-  #  group:
-  #    name: "{{ item.key }}"
-  #    gid: "{{ gid }}"
-  #    state: absent
-  #  become: yes
-  #  no_log: "{{ nolog }}"
-  #  when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent')
-  #  with_dict: "{{ user_list }}"
-  #  tags: user
 
 
   #
