@@ -13,7 +13,7 @@
       mode: 0755
     become: yes
     no_log: "{{ nolog }}"
-    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.enable_user is defined and item.value.enable_user
+    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.enable_user is defined and item.value.enable_user == true
     with_dict: "{{ user_list }}"
 
   - name: set enable_user cron
@@ -28,7 +28,7 @@
       job: "/etc/init.d/enable_{{ userid }} stop > /dev/null 2>&1"
     become: yes
     no_log: "{{ nolog }}"
-    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.enable_user is defined and item.value.enable_user
+    when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.enable_user is defined and item.value.enable_user == true
     with_dict: "{{ user_list }}"
 
   - name: remove enable_user service
@@ -39,7 +39,7 @@
       state: absent
     become: yes
     no_log: "{{ nolog }}"
-    when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent' or item.value.enable_user is undefined or not item.value.enable_user)
+    when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent' or item.value.enable_user is undefined or item.value.enable_user == false)
     with_dict: "{{ user_list }}"
 
   - name: remove enable_user cron
@@ -54,6 +54,6 @@
       job: "/etc/init.d/enable_{{ userid }} stop > /dev/null 2>&1"
     become: yes
     no_log: "{{ nolog }}"
-    when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent' or item.value.enable_user is undefined or not item.value.enable_user)
+    when: item.key is defined and (item.value.ensure is undefined or item.value.ensure == 'absent' or item.value.enable_user is undefined or item.value.enable_user == false)
     with_dict: "{{ user_list }}"
 ...
