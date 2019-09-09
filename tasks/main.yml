@@ -79,7 +79,7 @@
       state: "{{ item.value.sshkey_ensure | default('absent') }}"
       key_options: "{{ item.value.sshkey_options | default('absent') }}"
       exclusive: "{{ item.value.sshkey_exclusive | default(true) }}"
-      unique: true
+      #unique: true
     become: yes
     no_log: "{{ nolog }}"
     when: item.key is defined and item.value.ensure is defined and item.value.ensure == 'present' and item.value.sshkey is defined and item.value.sshkeytype is defined
@@ -94,7 +94,7 @@
       state: absent
     become: yes
     no_log: "{{ nolog }}"
-    when: item.key is defined and item.value.sshkey_ensure is defined and item.value.sshkey_exclusive is defined and item.value.sshkey_ensure == 'absent' and item.value.sshkey_exclusive == true
+    when: item.key is defined and item.value.sshkey_ensure is defined and item.value.sshkey_exclusive is defined and item.value.sshkey_ensure == 'absent' and item.value.sshkey_exclusive
     with_dict: "{{ user_list }}"
     tags: [user, authorized_keys]
 
