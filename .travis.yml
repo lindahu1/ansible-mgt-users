@@ -21,6 +21,9 @@ install:
   # Create ansible.cfg with correct roles_path
   - printf '[defaults]\nroles_path=../' >> ansible.cfg
 
+  # add test case
+  - groupadd --gid 1009 test0
+
 script:
   # Basic role syntax check
   - ansible-playbook tests/test.yml -i tests/inventory --syntax-check
@@ -37,14 +40,16 @@ script:
 
   # Verify final results
   - id test1 | grep -q 'uid=1523(test1) gid=1523(test1) groups=1523(test1)'
-  - egrep  "test1|test2|test3" /etc/passwd | wc -l | awk '{exit $1!=2 }'
-  - egrep  "test1|test2|test3" /etc/group | wc -l | awk '{exit $1!=2 }'
+  - egrep  "test1|test2|test4" /etc/passwd | wc -l | awk '{exit $1!=2 }'
+  - egrep  "test1|test2|test4" /etc/group | wc -l | awk '{exit $1!=2 }'
   - sudo grep '$6$sT17slTs$pgjOlA6AbfOrSI96l5uTkndM0tD8X2XacqLNYKNPkvuTmkHZaqdcteUo2b6VSfU616f3wjeBut5jM6VaDYnvC1' /etc/shadow |grep -q test1
   - sudo grep 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDYVWqWp3YNQJMqSxbEB0lfVsqCeBlkeUxTECHCjj43SY+7Ygb' /home/test2/.ssh/authorized_keys |grep -q 'vagrant@node2' 
   - sudo ls -la /etc/sudoers.d/test1 && sudo ls -laq /etc/sudoers.d/test2
   - sudo grep -q 'ALL=(root)       NOPASSWD:/bin/ping' /etc/sudoers.d/test2
   - sudo crontab -l |grep -q '/etc/init.d/enable_test1 stop'
   - sudo /etc/init.d/enable_test1 start 
+  - sudo /etc/init.d/enable_test1 stop
+  - egrep "test0" /etc/group| wc -l |  awk '{exit $1!=0 }'
 
 
 notifications:
