@@ -31,8 +31,8 @@ script:
   # Run the role/playbook with ansible-playbook.
   - ansible-playbook -i tests/inventory tests/test.yml -e 'nolog=False' --connection=local
 
-  # test again
-  - ansible-playbook tests/test.yml -i tests/inventory --connection=local
+  # test again for debug
+  - ansible-playbook tests/test.yml -i tests/inventory -e 'nolog=False' --connection=local
 
   # Idempotent check - always change:1 while setting expire: 0
   - >
