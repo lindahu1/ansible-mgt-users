@@ -98,7 +98,6 @@
     with_dict: "{{ user_list }}"
     tags: [user, authorized_keys]
 
-
   - name: create /etc/sudoers.d/
     file:
       path: /etc/sudoers.d/

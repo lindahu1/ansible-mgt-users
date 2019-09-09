@@ -3,5 +3,5 @@ debug: False
 nolog: True
 user_list: {}
 sbin_nologin: '/sbin/nologin'
-stop_cron_hour: 23
-stop_cron_min: 57
+stop_cron_hour: '23'
+stop_cron_min: '57'
