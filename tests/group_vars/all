@@ -30,7 +30,7 @@ user_list:
     sshkey_exclusive: True
     enable_user: true
   test4:
-    userid: "test3"
+    userid: "test4"
     shell: /sbin/nologin
     permit: ALL=(ALL)       ALL
     ensure: absent
