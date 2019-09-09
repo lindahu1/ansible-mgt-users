@@ -4,7 +4,7 @@
       userid: "{{ item.value.userid | default(item.key) }}"
       nologin: "{{ sbin_nologin | default('/sbin/nologin') }}"
     debug:
-      msg: "{{ userid }} {{item.value.uid|default(omit)}} {{item.value.gid|default(omit)}} {{item.value.homefolder|default(omit)}} {{item.value.shell|default(nologin)}} {{ item.value.ensure|default('present') }}"
+      msg: "{{ userid }} {{ item.value.uid|default(omit) }} {{ item.value.gid|default(omit) }} {{ item.value.homefolder|default(omit) }} {{ item.value.shell|default(nologin) }} {{ item.value.ensure|default('present') }}"
     when: item.key is defined
     with_dict: "{{ user_list }}"
     no_log: "{{ False if debug }}"

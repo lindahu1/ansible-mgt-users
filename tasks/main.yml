@@ -94,7 +94,7 @@
       state: absent
     become: yes
     no_log: "{{ nolog }}"
-    when: item.key is defined and item.value.sshkey_ensure is defined and item.value.sshkey_exclusive is defined and item.value.sshkey_ensure == 'absent' and item.value.sshkey_exclusive == true
+    when: item.key is defined and item.value.sshkey_ensure is defined and item.value.sshkey_exclusive is defined and item.value.sshkey_ensure == 'absent' and item.value.sshkey_exclusive
     with_dict: "{{ user_list }}"
     tags: [user, authorized_keys]
 
