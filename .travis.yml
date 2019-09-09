@@ -50,6 +50,8 @@ script:
   - sudo ls -la /etc/sudoers.d/test1 && sudo ls -laq /etc/sudoers.d/test2
   - sudo grep -q 'ALL=(root)       NOPASSWD:/bin/ping' /etc/sudoers.d/test2
   - sudo crontab -l |grep -q '/etc/init.d/enable_test1 stop'
+  - sudo grep test1 /etc/passwd |grep '/nologin$' | wc -l |  awk '{exit $1!=1 }'
+  - sudo cat /etc/shadow |grep test1 | grep '::0:$' | wc -l |  awk '{exit $1!=1 }' 
   - sudo /etc/init.d/enable_test1 start 
   - sudo grep test1 /etc/passwd |grep '/bash$' | wc -l |  awk '{exit $1!=1 }'
   - sudo cat /etc/shadow |grep test1 | grep ':::$' | wc -l |  awk '{exit $1!=1 }' 
