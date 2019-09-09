@@ -7,6 +7,7 @@ user_list:
     shell: /sbin/nologin
     permit: ALL=(ALL)       ALL
     password: $6$sT17slTs$pgjOlA6AbfOrSI96l5uTkndM0tD8X2XacqLNYKNPkvuTmkHZaqdcteUo2b6VSfU616f3wjeBut5jM6VaDYnvC1
+    expires: 0
     ensure: present
     enable_user: true
   test2:
